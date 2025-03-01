@@ -1,0 +1,26 @@
+{
+    "name": "yag-exoconv",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--name=yag-exoconv",
+        "--env-file=${localWorkspaceFolder}/.devcontainer/.env"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "humao.rest-client",
+                "ms-python.black-formatter",
+                "redhat.vscode-yaml"
+            ]
+        }
+    },
+    "postCreateCommand": ".devcontainer/post-create.sh",
+    "mounts": [
+        "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
+        "source=${env:HOME}${env:USERPROFILE}/yag/data/ports,target=/mnt/data/ports,type=bind",
+        "source=/ara/devel/acme/yag/ports,target=/mnt/data/ports_src,type=bind",
+        "source=${env:HOME}${env:USERPROFILE}/yag/data/scrapers,target=/mnt/data/scrapers,type=bind"
+    ]
+}

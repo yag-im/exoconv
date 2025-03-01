@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "exoconv cli",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/workspaces/exoconv/exoconv/cli.py",
+            "args": [
+                "ready",
+                "--runner",
+                "scummvm"
+            ],
+            "envFile": "/workspaces/exoconv/.devcontainer/.env",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
