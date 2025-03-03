@@ -1,5 +1,4 @@
 import os
-import uuid
 from pathlib import Path
 from typing import (
     List,
@@ -45,24 +44,20 @@ def get_platform_release(releases: List[ScummvmMeta.Entity], platform: str) -> O
     return None
 
 
-def get_best_release(releases: List[ScummvmMeta.Entity]) -> ScummvmMeta.Entity:
-    preferred_platforms = ["Windows", "DOS", "MacOS"]
+def get_best_release(releases: List[ScummvmMeta.Entity]) -> Optional[ScummvmMeta.Entity]:
+    preferred_platforms = ["Windows", "DOS"]
     for platform in preferred_platforms:
         release = get_platform_release(releases, platform)
         if release:
             return release
-    raise ValueError(f"No suitable release found: {releases}")
+    return None
 
 
 def add_scummvm_game(game: ScummvmStateEntry) -> None:
     release = get_best_release(game.releases)
-    uuid_str = str(uuid.uuid4())
-    scummvm_add_installer(game, release, uuid_str)
-    scummvm_copy_game_data(game, release, uuid_str)
-    print(
-        f"curl --request POST \\\n"
-        f"  --url http://portsvc.yag.dc:8087/ports/apps/{game.igdb.slug}/releases/{uuid_str} \\\n"
-        f"  --header 'content-type: application/x-yaml' \\\n"
-        f"  --header 'user-agent: vscode-restclient' \\\n"
-        f"  --data-binary '@/workspaces/ports/ports/games/{game.igdb.slug}/{uuid_str}.yaml'"
-    )
+
+    if release is None:
+        print(f"Suitable release not found for {game.releases}")
+        return
+    scummvm_add_installer(game, release)
+    scummvm_copy_game_data(game, release)

@@ -9,7 +9,10 @@ from typing import (
 
 from lib.cmd.ready import ScummvmStateEntry
 from lib.runner import Runner
-from lib.yag.ports import add_scummvm_game
+from lib.yag.ports import (
+    add_scummvm_game,
+    get_best_release,
+)
 
 EXO_DATA_DIR = Path(os.environ["EXO_DATA_DIR"])
 SCRAPERS_DATA_DIR = Path(os.environ["SCRAPERS_DATA_DIR"])
@@ -26,14 +29,25 @@ def prepare_scummvm_games() -> None:
             and (not entry.in_ports)
             and (entry.release_year < 2000)
             and (entry.igdb.publisher is not None)
+            and get_best_release(entry.releases) is not None
         )
         return list(islice(res, limit))
 
     with open(EXO_DATA_DIR / "tmp" / "scummvm-state.json", "r", encoding="utf-8") as f:
         all_games = [ScummvmStateEntry.Schema().load(entry) for entry in json.load(f)]
         good_games = get_good_scummvm_games(all_games, limit=PREPARE_GAMES_LIMIT)
-        for gg in good_games:
-            add_scummvm_game(gg)
+        for game in good_games:
+            add_scummvm_game(game)
+        for game in good_games:
+            print(
+                f"curl --request POST \\\n"
+                f"  --url http://portsvc.yag.dc:8087/ports/apps/{game.igdb.slug}/releases/{game.uuid} \\\n"
+                f"  --header 'content-type: application/x-yaml' \\\n"
+                f"  --header 'user-agent: vscode-restclient' \\\n"
+                f"  --data-binary '@/workspaces/ports/ports/games/{game.igdb.slug}/{game.uuid}.yaml'\n"
+            )
+        for game in good_games:
+            print(f"./publish.sh {game.igdb.slug} {game.uuid}\n")
 
 
 def run(runner: Optional[Runner]) -> None:

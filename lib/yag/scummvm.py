@@ -22,7 +22,7 @@ SCUMMVM_VER = "2.9.0"
 TZ = "America/Los_Angeles"
 
 
-def add_installer(game: ScummvmStateEntry, release: ScummvmMeta.Entity, uuid_str: str) -> None:
+def add_installer(game: ScummvmStateEntry, release: ScummvmMeta.Entity) -> None:
     with open(PORTS_SRC_DIR / "scripts" / "templates" / "release.yaml.tmpl", "r", encoding="utf-8") as f:
         game_card = yaml.safe_load(f)
     game_card["descr"]["distro"]["url"] = "changeme"
@@ -42,14 +42,14 @@ def add_installer(game: ScummvmStateEntry, release: ScummvmMeta.Entity, uuid_str
     }
     game_card["descr"]["runner"] = {"name": "scummvm", "ver": SCUMMVM_VER}
     game_card["descr"]["year_released"] = game.release_year
-    game_card["descr"]["uuid"] = uuid_str
+    game_card["descr"]["uuid"] = game.uuid
     game_card["descr"]["ts_added"] = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")}{TZ}'
     yaml.SafeDumper.add_representer(
         type(None), lambda dumper, value: dumper.represent_scalar("tag:yaml.org,2002:null", "")
     )
     install_script_dir = PORTS_SRC_DIR / "ports" / "games" / game.igdb.slug
     install_script_dir.mkdir(parents=True, exist_ok=True)
-    with open(install_script_dir / f"{uuid_str}.yaml", "w", encoding="utf-8") as f:
+    with open(install_script_dir / f"{game.uuid}.yaml", "w", encoding="utf-8") as f:
         yaml.safe_dump(game_card, f, default_flow_style=False)
 
 
@@ -77,8 +77,8 @@ def copy_run_scripts(game: ScummvmStateEntry, game_dir: Path) -> None:
     output_path.chmod(output_path.stat().st_mode | stat.S_IEXEC)
 
 
-def copy_game_data(game: ScummvmStateEntry, release: ScummvmMeta.Entity, uuid_str: str) -> None:
-    game_dir = PORTS_DATA_DIR / "apps" / game.igdb.slug / uuid_str
+def copy_game_data(game: ScummvmStateEntry, release: ScummvmMeta.Entity) -> None:
+    game_dir = PORTS_DATA_DIR / "apps" / game.igdb.slug / game.uuid
     app_dir = game_dir / "APP"
     app_dir.mkdir(parents=True, exist_ok=True)
     zip_path = EXO_DATA_DIR / "eXoScummVM" / "eXo" / "eXoScummVM" / f"{game.parent_part}.zip"
