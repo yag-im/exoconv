@@ -5,7 +5,8 @@
     },
     "runArgs": [
         "--name=yag-exoconv",
-        "--env-file=${localWorkspaceFolder}/.devcontainer/.env"
+        "--env-file=${localWorkspaceFolder}/.devcontainer/.env",
+        "--env-file=${localWorkspaceFolder}/.devcontainer/secrets.env"
     ],
     "customizations": {
         "vscode": {

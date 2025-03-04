@@ -43,7 +43,7 @@ def add_installer(game: ScummvmStateEntry, release: ScummvmMeta.Entity) -> None:
     game_card["descr"]["runner"] = {"name": "scummvm", "ver": SCUMMVM_VER}
     game_card["descr"]["year_released"] = game.release_year
     game_card["descr"]["uuid"] = game.uuid
-    game_card["descr"]["ts_added"] = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")}{TZ}'
+    game_card["descr"]["ts_added"] = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f %Z")}{TZ}'
     yaml.SafeDumper.add_representer(
         type(None), lambda dumper, value: dumper.represent_scalar("tag:yaml.org,2002:null", "")
     )

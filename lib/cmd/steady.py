@@ -16,21 +16,25 @@ from lib.yag.ports import (
 
 EXO_DATA_DIR = Path(os.environ["EXO_DATA_DIR"])
 SCRAPERS_DATA_DIR = Path(os.environ["SCRAPERS_DATA_DIR"])
+DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL = os.environ["DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL"]
 
 PREPARE_GAMES_LIMIT = 1
 
 
 def prepare_scummvm_games() -> None:
     def get_good_scummvm_games(entries: List[ScummvmStateEntry], limit: int) -> List[ScummvmStateEntry]:
-        filtered_entries = [
-            entry
-            for entry in entries
-            if (entry.igdb.title_sim_ratio > 0.9)
-            and (not entry.in_ports)
-            and (entry.release_year < 2000)
-            and (entry.igdb.publisher is not None)
-            and get_best_release(entry.releases) is not None
-        ]
+        filtered_entries = []
+        for entry in entries:
+            best_release = get_best_release(entry.releases)
+            if (
+                (entry.igdb.title_sim_ratio > 0.9)
+                and (not entry.in_ports)
+                and (entry.release_year < 2000)
+                and (entry.igdb.publisher is not None)
+                and (best_release is not None)
+                and (best_release.has_menu is False)
+            ):
+                filtered_entries.append(entry)
         # return random subset to avoid alphabetical bias
         return random.sample(filtered_entries, min(limit, len(filtered_entries)))
 
@@ -49,6 +53,12 @@ def prepare_scummvm_games() -> None:
             )
         for game in good_games:
             print(f"./publish.sh {game.igdb.slug} {game.uuid}\n")
+        for game in good_games:
+            print(
+                f'curl -X POST "{DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL}" \\\n'
+                f'     -H "Content-Type: application/json" \\\n'
+                f'     -d \'{{"content": "https://yag.im/games/{game.uuid}/{game.igdb.slug}"}}\'\n'
+            )
 
 
 def run(runner: Optional[Runner]) -> None:
