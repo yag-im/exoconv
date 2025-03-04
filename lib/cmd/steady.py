@@ -1,6 +1,6 @@
 import json
 import os
-from itertools import islice
+import random
 from pathlib import Path
 from typing import (
     List,
@@ -21,17 +21,18 @@ PREPARE_GAMES_LIMIT = 1
 
 
 def prepare_scummvm_games() -> None:
-    def get_good_scummvm_games(entieies: List[ScummvmStateEntry], limit: int) -> List[ScummvmStateEntry]:
-        res = (
+    def get_good_scummvm_games(entries: List[ScummvmStateEntry], limit: int) -> List[ScummvmStateEntry]:
+        filtered_entries = [
             entry
-            for entry in entieies
+            for entry in entries
             if (entry.igdb.title_sim_ratio > 0.9)
             and (not entry.in_ports)
             and (entry.release_year < 2000)
             and (entry.igdb.publisher is not None)
             and get_best_release(entry.releases) is not None
-        )
-        return list(islice(res, limit))
+        ]
+        # return random subset to avoid alphabetical bias
+        return random.sample(filtered_entries, min(limit, len(filtered_entries)))
 
     with open(EXO_DATA_DIR / "tmp" / "scummvm-state.json", "r", encoding="utf-8") as f:
         all_games = [ScummvmStateEntry.Schema().load(entry) for entry in json.load(f)]
