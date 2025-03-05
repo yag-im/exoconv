@@ -3,11 +3,16 @@ from pathlib import Path
 from typing import (
     List,
     Optional,
+    Tuple,
 )
 
 import yaml
 
 from lib.cmd.ready import ScummvmStateEntry
+from lib.const import (
+    SUPPORTED_DISTRO_FORMATS,
+    SUPPORTED_PLATFORMS,
+)
 from lib.exo.dc import ScummvmMeta
 from lib.yag.scummvm import add_installer as scummvm_add_installer
 from lib.yag.scummvm import copy_game_data as scummvm_copy_game_data
@@ -37,19 +42,26 @@ def get_ports_metadata(ports_src_path: Path) -> List:
     return res
 
 
-def get_platform_release(releases: List[ScummvmMeta.Entity], platform: str) -> Optional[ScummvmMeta.Entity]:
-    for r in releases:
-        if r.platform == platform:
-            return r
-    return None
+def candidate_priority(release: ScummvmMeta.Entity) -> Tuple[int, int]:
+    preferred_platforms = SUPPORTED_PLATFORMS
+    preferred_distro_formats = SUPPORTED_DISTRO_FORMATS
+    distro_rank = (
+        preferred_distro_formats.index(release.distro_format)
+        if release.distro_format in preferred_distro_formats
+        else len(preferred_distro_formats)
+    )
+    platform_rank = (
+        preferred_platforms.index(release.platform)
+        if release.platform in preferred_platforms
+        else len(preferred_platforms)
+    )
+    return (distro_rank, platform_rank)
 
 
 def get_best_release(releases: List[ScummvmMeta.Entity]) -> Optional[ScummvmMeta.Entity]:
-    preferred_platforms = ["Windows", "DOS"]
-    for platform in preferred_platforms:
-        release = get_platform_release(releases, platform)
-        if release:
-            return release
+    releases = sorted(releases, key=candidate_priority)
+    if releases[0].platform in SUPPORTED_PLATFORMS:
+        return releases[0]
     return None
 
 

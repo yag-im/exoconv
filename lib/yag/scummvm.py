@@ -25,9 +25,9 @@ TZ = "America/Los_Angeles"
 def add_installer(game: ScummvmStateEntry, release: ScummvmMeta.Entity) -> None:
     with open(PORTS_SRC_DIR / "scripts" / "templates" / "release.yaml.tmpl", "r", encoding="utf-8") as f:
         game_card = yaml.safe_load(f)
-    game_card["descr"]["distro"]["url"] = "changeme"
+    game_card["descr"]["distro"]["url"] = "exoscummvm"
     game_card["descr"]["distro"]["files"] = ["changeme"]
-    game_card["descr"]["distro"]["format"] = "exoscummvm"
+    game_card["descr"]["distro"]["format"] = release.distro_format or "changeme"
     game_card["descr"]["igdb_slug"] = game.igdb.slug
     game_card["descr"]["lang"] = GAME_LANG
     game_card["descr"]["name"] = game.igdb.name

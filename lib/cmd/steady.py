@@ -8,6 +8,7 @@ from typing import (
 )
 
 from lib.cmd.ready import ScummvmStateEntry
+from lib.cmd.ready import run as run_ready
 from lib.runner import Runner
 from lib.yag.ports import (
     add_scummvm_game,
@@ -18,7 +19,7 @@ EXO_DATA_DIR = Path(os.environ["EXO_DATA_DIR"])
 SCRAPERS_DATA_DIR = Path(os.environ["SCRAPERS_DATA_DIR"])
 DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL = os.environ["DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL"]
 
-PREPARE_GAMES_LIMIT = 1
+PREPARE_GAMES_LIMIT = 10
 
 
 def prepare_scummvm_games() -> None:
@@ -62,6 +63,7 @@ def prepare_scummvm_games() -> None:
 
 
 def run(runner: Optional[Runner]) -> None:
+    run_ready(runner)
     if runner == Runner.SCUMMVM:
         prepare_scummvm_games()
     elif runner == Runner.DOS:
