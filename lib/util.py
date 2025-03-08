@@ -116,6 +116,6 @@ def map_yag_platform(exo_platform: Optional[str]) -> str:
     elif exo_platform == "DOS":
         return "dos"
     elif exo_platform == "Macintosh":
-        return "macos"
+        return "mac"
     else:
         raise ValueError(f"Unknown platform: {exo_platform}")
