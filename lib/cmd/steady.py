@@ -34,6 +34,7 @@ def prepare_scummvm_games() -> None:
                 and (entry.igdb.publisher is not None)
                 and (best_release is not None)
                 and (best_release.has_menu is False)
+                and (entry.scummvm_ver == "2.9.0" or entry.scummvm_ver == "None")
             ):
                 filtered_entries.append(entry)
         # return random subset to avoid alphabetical bias
