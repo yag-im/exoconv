@@ -20,9 +20,21 @@ SCRAPERS_DATA_DIR = Path(os.environ["SCRAPERS_DATA_DIR"])
 DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL = os.environ["DISCORD_HOOK_YAG_NEW_RELEASES_CHANNEL"]
 
 PREPARE_GAMES_LIMIT = 10
+MAX_YEAR = 2010
 
 
 def prepare_scummvm_games() -> None:
+    def _skip_title(title: str) -> bool:
+        skip_titles = {
+            "eXoScummVM",
+            "Broken Sword: The Shadow of the Templars",
+            "Simon the Sorcerer Puzzle Pack",
+            "Living Books: Arthur's Computer Adventure",
+            "Time Gal",
+            "The Better Dead Ratification",
+        }
+        return title in skip_titles or "myst" in title.lower()
+
     def get_good_scummvm_games(entries: List[ScummvmStateEntry], limit: int) -> List[ScummvmStateEntry]:
         filtered_entries = []
         for entry in entries:
@@ -30,12 +42,12 @@ def prepare_scummvm_games() -> None:
             if (
                 (entry.igdb.title_sim_ratio > 0.9)
                 and (not entry.in_ports)
-                and (entry.release_year < 2000)
+                and (entry.release_year < MAX_YEAR)
                 and (entry.igdb.publisher is not None)
                 and (best_release is not None)
                 and (best_release.has_menu is False)
                 and (entry.scummvm_ver == "2.9.0" or entry.scummvm_ver == "None")
-                and ("myst" not in entry.igdb.slug)  # DMCA
+                and _skip_title(entry.title) is False
             ):
                 filtered_entries.append(entry)
         # return random subset to avoid alphabetical bias
